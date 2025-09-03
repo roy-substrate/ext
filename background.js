@@ -1,15 +1,15 @@
-// Background script for substrate-copy extension
+// Background script for clip extension
+
+console.log('🚀 Clip extension background script loaded');
 
 // Text transformation functions
 function toPlainText(input) {
   if (!input) return '';
   
-  // Create a temporary DOM element to strip HTML
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = input;
-  
-  // Get plain text and clean up whitespace
-  return tempDiv.textContent || tempDiv.innerText || input.replace(/<[^>]*>/g, '');
+  // Remove HTML tags and clean whitespace
+  let text = input.replace(/<[^>]*>/g, '');
+  text = text.replace(/\s+/g, ' ').trim();
+  return text;
 }
 
 function toMarkdown(input) {
@@ -31,17 +31,11 @@ function toMarkdown(input) {
     return '#'.repeat(parseInt(level)) + ' ' + text;
   });
   
-  // Convert paragraphs
-  markdown = markdown.replace(/<p[^>]*>([^<]*)<\/p>/gi, '$1\n\n');
-  
-  // Convert line breaks
-  markdown = markdown.replace(/<br\s*\/?>/gi, '\n');
-  
-  // Strip remaining HTML tags
+  // Remove remaining HTML tags
   markdown = markdown.replace(/<[^>]*>/g, '');
   
-  // Clean up extra whitespace
-  markdown = markdown.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
+  // Clean up whitespace
+  markdown = markdown.replace(/\s+/g, ' ').trim();
   
   return markdown;
 }
@@ -49,120 +43,163 @@ function toMarkdown(input) {
 function toHTML(input) {
   if (!input) return '';
   
-  // If input already contains HTML tags, return as is
+  // If already HTML, return as is
   if (/<[^>]*>/.test(input)) {
     return input;
   }
   
-  // Convert plain text to basic HTML
+  // Convert plain text to HTML
   let html = input;
-  
-  // Convert line breaks to <br>
   html = html.replace(/\n/g, '<br>');
-  
-  // Wrap in paragraph tags
   html = `<p>${html}</p>`;
   
   return html;
 }
 
-// Storage management
-async function saveToHistory(text, format) {
+function toJSON(input) {
+  if (!input) return '{}';
+  
   try {
-    const result = await chrome.storage.local.get(['copyHistory']);
-    let history = result.copyHistory || [];
-    
-    // Add new item to beginning of array
-    const newItem = {
-      text: text.substring(0, 100), // Truncate for display
-      format: format,
-      timestamp: Date.now()
-    };
-    
-    history.unshift(newItem);
-    
-    // Keep only last 5 items
-    history = history.slice(0, 5);
-    
-    await chrome.storage.local.set({ copyHistory: history });
-  } catch (error) {
-    console.error('Error saving to history:', error);
+    // Try to parse existing JSON
+    JSON.parse(input);
+    return input;
+  } catch {
+    // Convert to simple JSON object
+    return JSON.stringify({ text: input.trim() }, null, 2);
   }
 }
 
-// Copy text to clipboard
+// Copy to clipboard function
 async function copyToClipboard(text, format) {
   try {
+    console.log(`📋 Copying text as ${format}:`, text.substring(0, 50) + '...');
+    
     await navigator.clipboard.writeText(text);
+    
+    // Save to history
     await saveToHistory(text, format);
     
     // Show notification
     chrome.notifications.create({
       type: 'basic',
       iconUrl: 'icons/icon48.png',
-          title: 'clip',
-    message: `✅ copied as ${format}`
+      title: 'clip',
+      message: `✅ Copied as ${format}`
     });
+    
+    console.log('✅ Successfully copied to clipboard');
   } catch (error) {
-    console.error('Error copying to clipboard:', error);
+    console.error('❌ Error copying to clipboard:', error);
+    
+    // Fallback notification
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'icons/icon48.png',
+      title: 'clip',
+      message: '❌ Copy failed'
+    });
+  }
+}
+
+// Save to history
+async function saveToHistory(text, format) {
+  try {
+    const result = await chrome.storage.local.get(['copyHistory']);
+    let history = result.copyHistory || [];
+    
+    const newItem = {
+      id: Date.now().toString(),
+      text: text.substring(0, 200), // Truncate for storage
+      fullText: text,
+      format: format,
+      timestamp: Date.now()
+    };
+    
+    history.unshift(newItem);
+    history = history.slice(0, 5); // Keep only last 5
+    
+    await chrome.storage.local.set({ copyHistory: history });
+    console.log('💾 Saved to history:', format);
+  } catch (error) {
+    console.error('❌ Error saving to history:', error);
   }
 }
 
 // Get selected text from active tab
 async function getSelectedText() {
   try {
+    console.log('🔍 Getting selected text...');
+    
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    console.log('📄 Active tab:', tab.url);
     
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       function: () => {
-        return window.getSelection().toString();
+        const selection = window.getSelection();
+        const text = selection.toString();
+        console.log('Selected text length:', text.length);
+        return text;
       }
     });
     
-    return results[0]?.result || '';
+    const selectedText = results[0]?.result || '';
+    console.log('📝 Selected text:', selectedText.substring(0, 50) + '...');
+    
+    return selectedText;
   } catch (error) {
-    console.error('Error getting selected text:', error);
+    console.error('❌ Error getting selected text:', error);
     return '';
   }
 }
 
 // Context menu setup
 chrome.runtime.onInstalled.addListener(() => {
-  // Remove any existing context menus
-  chrome.contextMenus.removeAll();
+  console.log('🔧 Setting up context menus...');
   
-  // Create context menu items
-  chrome.contextMenus.create({
-    id: 'copy-plain-text',
-    title: 'Copy as Plain Text',
-    contexts: ['selection']
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: 'copy-plain-text',
+      title: 'Copy as Plain Text',
+      contexts: ['selection']
+    });
+    
+    chrome.contextMenus.create({
+      id: 'copy-markdown',
+      title: 'Copy as Markdown',
+      contexts: ['selection']
+    });
+    
+    chrome.contextMenus.create({
+      id: 'copy-html',
+      title: 'Copy as HTML',
+      contexts: ['selection']
+    });
+    
+    chrome.contextMenus.create({
+      id: 'copy-json',
+      title: 'Copy as JSON',
+      contexts: ['selection']
+    });
+    
+    console.log('✅ Context menus created');
   });
   
-  chrome.contextMenus.create({
-    id: 'copy-markdown',
-    title: 'Copy as Markdown',
-    contexts: ['selection']
-  });
-  
-  chrome.contextMenus.create({
-    id: 'copy-html',
-    title: 'Copy as HTML',
-    contexts: ['selection']
+  // Show welcome notification
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: 'icons/icon48.png',
+    title: 'clip',
+    message: '🚀 Extension ready! Right-click selected text to copy.'
   });
 });
 
 // Context menu click handler
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (!info.selectionText) return;
+  console.log('🖱️ Context menu clicked:', info.menuItemId);
   
-  // Check if "always copy as plain text" is enabled
-  const result = await chrome.storage.local.get(['alwaysPlainText']);
-  const alwaysPlainText = result.alwaysPlainText || false;
-  
-  if (alwaysPlainText) {
-    const plainText = toPlainText(info.selectionText);
-    await copyToClipboard(plainText, 'plain text (auto)');
+  if (!info.selectionText) {
+    console.log('⚠️ No text selected');
     return;
   }
   
@@ -182,6 +219,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       transformedText = toHTML(info.selectionText);
       format = 'HTML';
       break;
+    case 'copy-json':
+      transformedText = toJSON(info.selectionText);
+      format = 'JSON';
+      break;
   }
   
   if (transformedText) {
@@ -191,28 +232,34 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 // Keyboard shortcuts handler
 chrome.commands.onCommand.addListener(async (command) => {
+  console.log('⌨️ Keyboard command:', command);
+  
   switch (command) {
     case 'copy-plain':
       const selectedText = await getSelectedText();
       if (selectedText) {
         const plainText = toPlainText(selectedText);
         await copyToClipboard(plainText, 'plain text');
+      } else {
+        console.log('⚠️ No text selected for keyboard shortcut');
       }
       break;
+      
     case 'clear-clipboard':
-      await copyToClipboard('', 'cleared');
+      try {
+        await navigator.clipboard.writeText('');
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icons/icon48.png',
+          title: 'clip',
+          message: '🗑️ Clipboard cleared'
+        });
+        console.log('🗑️ Clipboard cleared');
+      } catch (error) {
+        console.error('❌ Error clearing clipboard:', error);
+      }
       break;
   }
 });
 
-// This functionality is now integrated into the main context menu handler above
-
-// Add notification permission
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.notifications.create({
-    type: 'basic',
-    iconUrl: 'icons/icon48.png',
-    title: 'clip',
-    message: '🚀 Extension installed and ready!'
-  });
-});
+console.log('✅ Clip extension background script initialized');
