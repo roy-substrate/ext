@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "clip",
+  "version": "1.0.0",
+  "description": "copy without the junk. one click, everywhere.",
+  "permissions": [
+    "contextMenus",
+    "clipboardWrite",
+    "storage",
+    "scripting",
+    "notifications"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "clip",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "copy-plain": {
+      "suggested_key": {
+        "default": "Alt+Shift+C"
+      },
+      "description": "Copy selected text as plain text"
+    },
+    "clear-clipboard": {
+      "suggested_key": {
+        "default": "Alt+Shift+X"
+      },
+      "description": "Clear clipboard"
+    }
+  }
+}

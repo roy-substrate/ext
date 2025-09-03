@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>substrate-copy</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>clip</h1>
+      <p class="tagline">copy without the junk</p>
+    </div>
+    
+    <div class="controls">
+      <div class="toggle-container">
+        <label class="toggle">
+          <input type="checkbox" id="alwaysPlainText">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">Always copy as plain text</span>
+      </div>
+      
+      <button id="clearClipboard" class="btn btn-secondary">
+        🗑️ Clear Clipboard
+      </button>
+    </div>
+    
+    <div class="history">
+      <h3>Recent Copies</h3>
+      <div id="historyList" class="history-list">
+        <div class="empty-state">
+          <p>No recent copies</p>
+          <small>Select text and use the context menu to get started</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="shortcuts">
+      <h4>Keyboard Shortcuts</h4>
+      <div class="shortcut-item">
+        <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>
+        <span>Copy as plain text</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd>
+        <span>Clear clipboard</span>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

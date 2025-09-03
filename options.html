@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>clip - Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <img src="icons/icon48.png" alt="clip" class="logo-icon">
+        <h1>clip Options</h1>
+      </div>
+      <p class="tagline">Customize your copy experience</p>
+    </header>
+    
+    <main class="main">
+      <!-- Basic Settings -->
+      <section class="section">
+        <h2>Basic Settings</h2>
+        
+        <div class="setting-group">
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="alwaysPlainText">
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Always copy as plain text</span>
+                <span class="setting-description">Override format selection and always copy as plain text</span>
+              </div>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="autoCleanText">
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Auto-clean text</span>
+                <span class="setting-description">Remove extra whitespace, hidden characters, and clean URLs</span>
+              </div>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="showNotifications">
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Show copy notifications</span>
+                <span class="setting-description">Display desktop notifications when text is copied</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Privacy Settings -->
+      <section class="section">
+        <h2>Privacy & Storage</h2>
+        
+        <div class="setting-group">
+          <div class="setting-item">
+            <label for="historyLimit" class="setting-label">
+              <span class="setting-title">History limit</span>
+              <span class="setting-description">Maximum number of items to keep in history</span>
+            </label>
+            <select id="historyLimit" class="select">
+              <option value="5">5 items (Free)</option>
+              <option value="25">25 items (Pro)</option>
+              <option value="50">50 items (Pro)</option>
+              <option value="100">100 items (Pro)</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label for="autoClearMinutes" class="setting-label">
+              <span class="setting-title">Auto-clear clipboard</span>
+              <span class="setting-description">Automatically clear clipboard after specified time</span>
+            </label>
+            <select id="autoClearMinutes" class="select">
+              <option value="0">Never</option>
+              <option value="5">5 minutes</option>
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="syncEnabled">
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Sync across devices <span class="pro-badge">Pro</span></span>
+                <span class="setting-description">Sync history and snippets across all your devices</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Format Settings -->
+      <section class="section">
+        <h2>Copy Formats</h2>
+        
+        <div class="setting-group">
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="enableMarkdown" checked>
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Enable Markdown format</span>
+                <span class="setting-description">Show "Copy as Markdown" in context menu</span>
+              </div>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="enableHTML" checked>
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Enable HTML format</span>
+                <span class="setting-description">Show "Copy as HTML" in context menu</span>
+              </div>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <label class="toggle-container">
+              <input type="checkbox" id="enableJSON" checked>
+              <span class="toggle-slider"></span>
+              <div class="setting-info">
+                <span class="setting-title">Enable JSON format</span>
+                <span class="setting-description">Show "Copy as JSON" in context menu</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+      
+      <!-- AI Features (Pro) -->
+      <section class="section">
+        <h2>✨ AI Features</h2>
+        
+        <div class="pro-status" id="aiProStatus">
+          <div class="pro-content">
+            <h3>Upgrade to Pro for AI Features</h3>
+            <p>Get AI-powered text processing with rephrasing, shortening, and expansion capabilities.</p>
+            <button class="btn-primary" id="upgradeForAI">Upgrade to Pro</button>
+          </div>
+        </div>
+        
+        <div class="ai-settings hidden" id="aiSettings">
+          <div class="setting-group">
+            <div class="setting-item">
+              <label for="openaiApiKey" class="setting-label">
+                <span class="setting-title">OpenAI API Key</span>
+                <span class="setting-description">Your OpenAI API key for AI features (stored locally)</span>
+              </label>
+              <div class="input-group">
+                <input type="password" id="openaiApiKey" class="input" placeholder="sk-...">
+                <button type="button" class="btn-secondary" id="toggleApiKey">Show</button>
+              </div>
+              <small class="help-text">
+                Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
+              </small>
+            </div>
+            
+            <div class="setting-item">
+              <label for="aiModel" class="setting-label">
+                <span class="setting-title">AI Model</span>
+                <span class="setting-description">Choose the AI model for text processing</span>
+              </label>
+              <select id="aiModel" class="select">
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster, Cheaper)</option>
+                <option value="gpt-4">GPT-4 (Better Quality)</option>
+                <option value="gpt-4-turbo">GPT-4 Turbo (Best Performance)</option>
+              </select>
+            </div>
+            
+            <div class="setting-item">
+              <label class="toggle-container">
+                <input type="checkbox" id="aiContextMenu">
+                <span class="toggle-slider"></span>
+                <div class="setting-info">
+                  <span class="setting-title">Show AI options in context menu</span>
+                  <span class="setting-description">Display AI rephrase, shorten, and expand options</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Data Management -->
+      <section class="section">
+        <h2>Data Management</h2>
+        
+        <div class="setting-group">
+          <div class="data-actions">
+            <div class="action-group">
+              <h4>Export Data</h4>
+              <p>Download your copy history and snippets</p>
+              <div class="button-group">
+                <button class="btn-secondary" id="exportJSON">Export as JSON</button>
+                <button class="btn-secondary" id="exportCSV">Export as CSV</button>
+                <button class="btn-secondary" id="exportMarkdown">Export as Markdown</button>
+              </div>
+            </div>
+            
+            <div class="action-group">
+              <h4>Import Data</h4>
+              <p>Import previously exported data</p>
+              <div class="button-group">
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button class="btn-secondary" id="importData">Import JSON File</button>
+              </div>
+            </div>
+            
+            <div class="action-group danger">
+              <h4>Reset Data</h4>
+              <p>Clear all history, snippets, and settings</p>
+              <div class="button-group">
+                <button class="btn-danger" id="clearAllData">Clear All Data</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 clip Extension. Made with ❤️ for productivity.</p>
+        <div class="footer-links">
+          <a href="#" id="showChangelog">Changelog</a>
+          <a href="#" id="showPrivacy">Privacy Policy</a>
+          <a href="#" id="showSupport">Support</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+  
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="confirmTitle">Confirm Action</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirmCancel" class="btn-secondary">Cancel</button>
+        <button id="confirmOk" class="btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
